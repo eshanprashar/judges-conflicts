@@ -1,20 +1,21 @@
-import requests
-import csv
-import json
+##############################################
+# utils file for CourtListener scraper
+# contains functions for logging errors,...
+##############################################
 
-def make_session():
-    s = requests.session()
-    token = api_token
-    s.headers = {"Authorization": f"Token {token}"}
-    return s
+import logging
+import time
 
-# Function to fetch data from the API endpoint
-def fetch_data(url):
-    session = make_session()
-    response = session.get(url)
-    
-    if response.status_code != 200:
-        print(f"Error: {response.status_code}, {response.text}")
-        return None
-    
-    return response.json()
+# Configure logging to write to a file
+logging.basicConfig(filenname='error_log.txt', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def log_error_to_file(func):
+    '''Decorator that wraps the passed function and logs any errors to a file
+    '''
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            logging.error(f'Error in function {func.__name__}: {e}', exc_info=True)
+            raise e
+    return wrapper

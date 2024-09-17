@@ -2,8 +2,6 @@ import requests
 import csv
 import json
 
-api_token = '8fd890fe7c618c66cf3c93f5d4d419b766c84a09'
-
 def make_session():
     s = requests.session()
     token = api_token

@@ -700,6 +700,17 @@ qa = ["flake8 (==5.0.4)", "mypy (==0.971)", "types-setuptools (==67.2.0.1)"]
 testing = ["Django", "attrs", "colorama", "docopt", "pytest (<7.0.0)"]
 
 [[package]]
+name = "json-logger"
+version = "0.0.1"
+description = "Sending json to a logger"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "json_logger-0.0.1.tar.gz", hash = "sha256:132b7db97fa2b3bff50c6056b9d31f7c70df0f5523f01f45f9ed53f48229fcfe"},
+]
+
+[[package]]
 name = "jupyter-client"
 version = "8.6.2"
 description = "Jupyter protocol implementation and client libraries"
@@ -1948,4 +1959,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "99d740008ebb6685569344d9f6893d3d58aa1ae2f99293d8abe7277f3ac77a5d"
+content-hash = "789afaac044f0af9db750038c425bf0382b4261dc1547e0720916a4a9e41d336"

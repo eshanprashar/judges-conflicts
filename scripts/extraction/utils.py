@@ -35,3 +35,22 @@ def find_env_file():
                 return env_path
         current_dir = os.path.dirname(current_dir) # move up one directory
     return None
+
+def get_api_token():
+    '''Loads the API token from the .env file
+    Retuns the API token
+    '''
+    # Load api_token from .env file
+    env_file_path = find_env_file()
+    if env_file_path:
+        print(f"Found .env file at {env_file_path}")
+        load_dotenv(env_file_path)
+    else:
+        raise FileNotFoundError("No .env file found. Please create one and save it in the root directory.")
+
+    # Access envionment variables
+    api_token = os.getenv('API_TOKEN')
+    if not API_TOKEN:
+        raise ValueError("API token not found. Please set the API_TOKEN in your .env file and save it in root directory.")
+    else:
+        return api_token

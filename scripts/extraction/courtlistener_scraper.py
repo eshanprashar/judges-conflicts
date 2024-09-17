@@ -18,31 +18,17 @@ import json
 import csv
 
 # Libraries I am not sure if I need
-from requests.adapters import HTTPAdapter
-from datetime import datetime
-import hashlib
+#from requests.adapters import HTTPAdapter
+#from datetime import datetime
+#import hashlib
+#from urllib.error import HTTPError
+#import urllib
+#import urllib.request
+#import urllib.parse
+#from http.client import RemoteDisconnected
+#import threading
 
-from urllib.error import HTTPError
-import urllib
-import urllib.request
-import urllib.parse
-from http.client import RemoteDisconnected
-import threading
-from utils import *
-
-# Load api_token from .env file
-# First, use the find_env_file function from utils to locate the .env file
-env_file_path = find_env_file()
-if env_file_path:
-    print(f"Found .env file at {env_file_path}")
-    load_dotenv(env_file_path)
-else:
-    raise FileNotFoundError("No .env file found. Please create one and save it in the root directory.")
-
-# Access envionment variables
-api_token = os.getenv('API_TOKEN')
-if not api_token:
-    raise ValueError("API token not found. Please set the API_TOKEN in your .env file and save it in root directory.")
+from utils import get_api_token, log_error_to_file
 
 print("Scraper started!")
 

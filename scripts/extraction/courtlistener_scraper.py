@@ -52,7 +52,7 @@ class CLscraper:
     def make_session(self, api_token):
         '''Creates a session with the API token
         '''
-        s = requests.session()
+        s = requests.Session()
         token = api_token
         s.headers = {"Authorization": f"Token {token}"}
         return s
@@ -102,6 +102,7 @@ class CLscraper:
                 self.request_count = 0
 
             # Make a request to the endpoint
+            self.session = self.make_session(self.api_token)
             response = self.session.get(url)
             # Increment the request count
             self.request_count += 1
@@ -120,9 +121,9 @@ class CLscraper:
             else:
                 break
             
-            self.save_to_json(all_data, start_page or 1, page_count)
-            print(f"Total pages fetched: {page_count} starting from page {start_page or 1}")
-            return all_data
+        self.save_to_json(all_data, start_page or 1, page_count)
+        print(f"Total pages fetched: {page_count} starting from page {start_page or 1}")
+        return all_data
 
     def save_to_json(self, data, start_page, end_page):
         '''Save raw data to a json file

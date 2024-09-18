@@ -50,7 +50,7 @@ def get_api_token():
 
     # Access envionment variables
     api_token = os.getenv('API_TOKEN')
-    if not API_TOKEN:
+    if not api_token:
         raise ValueError("API token not found. Please set the API_TOKEN in your .env file and save it in root directory.")
     else:
         return api_token

@@ -1,0 +1,1 @@
+Error in fetch_data: unsupported operand type(s) for %: 'NoneType' and 'int'

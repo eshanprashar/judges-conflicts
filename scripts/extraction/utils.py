@@ -9,19 +9,38 @@ import os
 import logging
 import time
 
-# Configure logging to write to a file
-logging.basicConfig(filename='error_log.txt', level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
+# Function to configure logging to write to a file
+def configure_logging(log_dir, log_filename="error_log.txt"):
+    """
+    Configure logging to write to a file in the specified log directory.
+    """
+    os.makedirs(log_dir, exist_ok=True)  # Ensure log directory exists
+    log_path = os.path.join(log_dir, log_filename)
+    logging.basicConfig(filename=log_path, level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def log_error_to_file(func):
-    '''Decorator that wraps the passed function and logs any errors to a file
-    '''
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            logging.error(f'Error in function {func.__name__}: {e}', exc_info=True)
-            raise e
-    return wrapper
+def log_error_to_file(log_dir="logs"):
+    """
+    Decorator to log errors to a file in the specified log directory.
+    
+    Args:
+        log_dir (str): Directory for saving error logs.
+    
+    Returns:
+        decorator function
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                log_path = os.path.join(log_dir, "error_log.txt")
+                with open(log_path, "a") as f:
+                    f.write(f"Error in {func.__name__}: {str(e)}\n")
+                logging.error(f"Error in {func.__name__}: {str(e)}")
+                raise e
+        return wrapper
+    return decorator
+
 
 def find_env_file():
     '''Recursively searches for a .env file starting from the current directory

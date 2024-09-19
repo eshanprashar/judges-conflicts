@@ -2,3 +2,4 @@ token.env
 /data
 /data/financial_disc
 /scripts/analysis/sample.csv
+/scripts/extraction/logs

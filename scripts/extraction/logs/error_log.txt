@@ -1,1 +1,8 @@
 Error in fetch_data: unsupported operand type(s) for %: 'NoneType' and 'int'
+Error in fetch_data: name 'start_page' is not defined
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?

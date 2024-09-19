@@ -77,10 +77,18 @@ class APIScraper:
         print(f"Data directory set to {data_dir}")
         return data_dir
     
-    def create_log_file(self, endpoint):
-        '''Create a log file for the endpoint
+    def create_log_file(self, endpoint, is_author_based=False, author_id=None):
+        '''Create a log file based on the endpoint or author ID
+        Args:
+            endpoint (str): The API endpoint to fetch data from.
+            is_author_based (bool, optional): Whether to create a log file per author. Defaults to False.
+            author_id (int, optional): The author ID to include in the log file name if is_author_based is True.
         '''
-        log_filename = f"{endpoint}_log.txt"
+        # Determine the log filename based on whether it's author-based
+        if is_author_based and author_id:
+            log_filename = f"{endpoint}_author_{author_id}_log.txt"  # Log file for each author
+        else:
+            log_filename = f"{endpoint}_log.txt"  # Default log file for the entire endpoint
         log_path = os.path.join(self.log_dir, log_filename)
         self.log_file = log_path
 
@@ -100,17 +108,18 @@ class APIScraper:
         """
         print(f"Request successful with code 200! Now, fetching page {current_page}...")
     
-    def save_next_url_and_page(self, endpoint, next_url, page_number):
+    def save_current_next_url_and_page(self,url, next_url, page_number,is_author_based=False,author_id=None):
         """Save the next URL and the last successfully fetched page number to the log file.
         """
         with open(self.log_file, 'w') as f:
+            f.write(f"Current URL: {url}\n")  
             f.write(f"Next URL: {next_url}\n")
             f.write(f"Last successfully fetched page: {page_number}\n")
         print(f"Next URL and page number saved to {self.log_file}")
 
 
     # Function to get the last page number fetched
-    def get_last_page(self, endpoint):
+    def get_last_page(self):
         '''Retrieve the last page number fetched from the log file
         Returns:
         int: The last page number fetched
@@ -128,7 +137,7 @@ class APIScraper:
         return 1  # Default to start from page 1 if no log file is found
 
 
-    def get_next_url(self, endpoint):
+    def get_next_url(self):
         """
         Get the next URL from the log file to resume from where we left off.
         """
@@ -146,26 +155,44 @@ class APIScraper:
 
 
     @log_error_to_file(log_dir="logs")
-    def fetch_data(self, endpoint, params=None,save_after_pages=10):
+    def fetch_data(self, endpoint, params=None,save_after_pages=10,is_author_based=False):
         """
         Fetch data from the API endpoint with pagination handling.
 
         Args:
             endpoint (str): The API endpoint to fetch data from.
             params (dict, optional): Additional query parameters for the API request. Defaults to None.
-            start_page (int, optional): The page number to start fetching from. Defaults to 1.
-            max_pages (int, optional): The maximum number of pages to fetch. Defaults to None.
-            save_after_pages (int, optional): Save data to a file after every `save_after_pages` pages. Defaults to 10.
+            save_after_pages (int, optional): Save data to a file after every `save_after_pages` pages. Defaults to 10 for testing.
+            is_author_based (bool, optional): If True, use a different log file per author. Defaults to False.
+            author_id (int, optional): If is_author_based is True, this should contain the author ID for creating a unique log file.
 
         Returns:
             list: A list of data fetched from the API endpoint.
         """
-        self.create_log_file(endpoint)  # Create a log file for the endpoint
-        next_url = self.get_next_url(endpoint)  # Get the next URL to resume from
+        # Check if is_author_based is True
+        if is_author_based:
+            # Extract author_id from the params['q'] query string
+            query = params.get('q', '')
+        if 'author_id:' in query:
+            author_id = query.split('author_id:')[-1]
+        else:
+            author_id = None
+
+        # Create log file based on endpoint or author
+        # This abstracts away the need to modify method signature for each request type (author-based or not)
+        self.create_log_file(endpoint, is_author_based, author_id)
+
+        # Get the next URL to resume from, if available
+        next_url = self.get_next_url() # NEEDS TO BE CHANGED  
         url = next_url if next_url else f"{self.base_url}{endpoint}/"
+        
         all_data = []
-        last_fetched_page = self.get_last_page(endpoint)  # Get the last page number fetched
-        page_number = last_fetched_page - (last_fetched_page % save_after_pages)  # Adjust to last saved batch
+        # Get the last page number fetched
+        last_fetched_page = self.get_last_page() # NEEDS TO BE CHANGED
+        if last_fetched_page == 1:
+            page_number = last_fetched_page
+        else:
+            page_number = last_fetched_page - (last_fetched_page % save_after_pages)  # Adjust to last saved batch
         total_fetched = 0  # Track the total number of fetched items
 
         # Track time for progress reporting
@@ -184,6 +211,7 @@ class APIScraper:
                 print(f"Fetching data from page {page_number}...")
                 response = self.session.get(url, params=params)
                 self.request_count += 1
+                print(f"Request count: {self.request_count}")
 
                 # Read the response code
                 if response.status_code != 200:
@@ -204,7 +232,7 @@ class APIScraper:
                 print(f"Total items successfully fetched from page {page_number}: {total_fetched}")
 
                 # Save data incrementally to csv
-                if page_number % save_after_pages == 0:
+                if not is_author_based and page_number % save_after_pages == 0:
                     # Process the data
                     all_data = self.process_data(all_data)
                     # Define filename using endpoint and page number
@@ -215,7 +243,7 @@ class APIScraper:
                     all_data = []  # Reset the data after saving to avoid memory issues
                 
                 # Save next URL and page number
-                self.save_next_url_and_page(endpoint, data.get('next', None), page_number)
+                self.save_current_next_url_and_page(url, data.get('next', 'None'), page_number)
                 
                 # Handle pagination
                 if 'next' in data and data['next']:
@@ -233,7 +261,7 @@ class APIScraper:
         finally:
             print("Exiting gracefully. The last page and URL were logged.")
         total_time = time.time() - start_time
-        print(f"Data fetched from {page_number - start_page + 1} pages in {total_time/60:.2f} minutes, total records fetched: {total_fetched}")
+        print(f"Total {total_fetched} records fetched in {total_time/60:.2f} minutes!")
         return all_data
 
     # Function to process and flatten the data
@@ -300,15 +328,61 @@ class CLScraper(APIScraper):
         """
         return self.fetch_data(endpoint="positions", params=kwargs)
 
-    
-    def fetch_dockets(self, **kwargs):
+    def fetch_education(self, **kwargs):
         """
-        Fetch dockets data from the CourtListener API.
+        Fetch education data from the CourtListener API.
 
         Args:
             **kwargs: Additional query parameters for the API request.
 
         Returns:
+            list: A list of education data.
+        """
+        return self.fetch_data(endpoint="education", params=kwargs)
+
+    def fetch_financial_disclosures(self, **kwargs):
+        """
+        Fetch financial disclosures data from the CourtListener API.
+
+        Args:
+            **kwargs: Additional query parameters for the API request.
+
+        Returns:
+            list: A list of financial disclosures data.
+        """
+        return self.fetch_data(endpoint="financial-disclosures", params=kwargs)
+
+    
+    def fetch_dockets_per_author_id(self,author_id,is_author_based=True,**kwargs):
+        """
+        Fetch dockets data from the CourtListener API.
+
+        Args:
+            author_id (int): The author ID for the dockets.
+            **kwargs: Additional query parameters for the API request.
+
+        Returns:
             list: A list of dockets data.
         """
-        return self.fetch_data(endpoint="dockets", params=kwargs)
+        endpoint = "search"
+        params = {"q": f"author_id:{author_id}"}
+        all_data = self.fetch_data(endpoint=endpoint, params=params, is_author_based=True)
+
+        # If data is not empty, extract name and save to a CSV file
+        if all_data:
+            judge_name = "name not found"
+            for entry in all_data:
+                if entry.get('judge'):
+                    judge_name = entry.get("judge")
+                    break
+        else:
+            judge_name = "data not found"
+        
+        # Sanitizing judge name before assigning to filename
+        judge_name = "".join(c if c.isalnum() else "_" for c in judge_name)
+
+        # Define the csv filename using judge name and author ID
+        csv_filename = os.path.join(self.set_data_directory("dockets"), f"{judge_name}_{author_id}.csv")
+        self.save_to_csv(data=self.process_data(all_data), filename=csv_filename)
+        print(f"Data for author_id {author_id} saved to {csv_filename}")
+        return all_data

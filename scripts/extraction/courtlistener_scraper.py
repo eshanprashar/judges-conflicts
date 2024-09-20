@@ -197,6 +197,10 @@ class APIScraper:
 
         # Track time for progress reporting
         start_time = time.time()
+
+        # In case of server side errors, we can delay and retry
+        max_retries = 5 # we will loop through these many times
+        retry_delay = 5 # seconds
         
         # Main loop to go through each page, fetch data and save it to a CSV file
         try:
@@ -207,20 +211,36 @@ class APIScraper:
                     time.sleep(3600)  # Sleep for 1 hour
                     self.request_count = 0  # Reset the request count after sleeping
 
-                # This counts as 1 request: verified from CL API docs
-                print(f"Fetching data from page {page_number}...")
-                response = self.session.get(url, params=params)
-                self.request_count += 1
-                print(f"Request count: {self.request_count}")
+                # Retry mechanism
+                for attempt in range(max_retries):
+                    print(f"Fetching data from page {page_number}...")
+                    response = self.session.get(url, params=params)
+                    self.request_count += 1
+                    print(f"Request count: {self.request_count}")
 
-                # Read the response code
-                if response.status_code != 200:
-                    print(f"Error: {response.status_code}, {response.text}")
-                    break
+                    # Read the response code
+                    # Break if the response is successful
+                    if response.status_code == 200:
+                        break
+                    # If the response indicates a server side error, log the error and retry
+                    elif response.status_code >=500:
+                        print(f"Server error {response.status_code}: {response.reason}. Retrying in {retry_delay} seconds...")
+                        time.sleep(retry_delay)
+                        retry_delay *= 2 # exponential backoff
+                    else:
+                        # Client side errors are not retried
+                        error_message = f"Error {response.status_code}: {response.reason}"
+                        print(error_message)
+                        raise requests.exceptions.HTTPError(error_message)
+                else:
+                    # If all retries fail, raise an exception
+                    error_message = f"Failed to fetch page {page_number} after {max_retries} attempts."
+                    print(error_message)
+                    raise requests.exceptions.RetryError(error_message)
                 
-                # Log progress if the function is expanded beyond a print statement
-                self.log_progress(page_number) 
-
+                # Reset the retry delay
+                retry_delay = 5
+            
                 # Read the response data 
                 data = response.json()
                 all_data.extend(data.get('results', []))

@@ -36,10 +36,11 @@ def log_error_to_file(log_dir="logs"):
                 log_path = os.path.join(log_dir, "error_log.txt")
                 with open(log_path, "a") as f:
                     f.write(f"Error in {func.__name__}: {str(e)}\n")
-                logging.error(f"Error in {func.__name__}: {str(e)}")
-                raise e
+                print(f"An error occurred: {e}. Details logged to {log_path}")
+                raise  # Re-raise the exception after logging
         return wrapper
     return decorator
+
 
 
 def find_env_file():

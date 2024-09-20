@@ -6,3 +6,6 @@ Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant h
 Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
 Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
 Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?
+Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))

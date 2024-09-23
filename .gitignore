@@ -1,5 +1,7 @@
 token.env
 /data
 /data/financial_disc
+/scripts/extraction/archive
 /scripts/analysis/sample.csv
 /scripts/extraction/logs
+jk_code_sample.py

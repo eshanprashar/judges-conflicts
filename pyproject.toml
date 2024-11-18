@@ -30,6 +30,10 @@ jellyfish = "^1.1.0"
 scikit-learn = "^1.5.2"
 openpyxl = "^3.1.5"
 selenium = "^4.25.0"
+rapidfuzz = "^3.10.1"
+geopandas = "^1.0.1"
+shapely = "^2.0.6"
+h3 = "^4.1.2"
 
 
 [build-system]

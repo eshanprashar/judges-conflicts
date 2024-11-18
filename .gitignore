@@ -6,3 +6,5 @@ token.env
 /scripts/extraction/logs
 jk_code_sample.py
 /scripts/analysis/temp
+# DS Store
+.DS_Store

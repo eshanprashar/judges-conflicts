@@ -9,3 +9,6 @@ Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant h
 Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
 Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
 Error in fetch_data: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+Error in fetch_data: cannot access local variable 'query' where it is not associated with a value
+Error in fetch_data: cannot access local variable 'query' where it is not associated with a value
+Error in fetch_data: Invalid URL 'None': No scheme supplied. Perhaps you meant https://None?

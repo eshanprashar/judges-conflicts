@@ -1,6 +1,6 @@
 ##################################################
 # Download CourtListener data with an API token
-# and save it to a local directory. As of Sep 2024
+# and save it to a local directory. As of Nov 2024
 # CourtListener restricts the number of requests
 # to 5000 per day. This is sufficient unless someone
 # wants to scrape large amounts of PACER, opinion data
@@ -191,8 +191,8 @@ class APIScraper:
         if is_author_based:
             # Extract author_id from the params['q'] query string
             query = params.get("q", "")
-        if "author_id:" in query:
-            author_id = query.split("author_id:")[-1]
+            if "author_id:" in query:
+                author_id = query.split("author_id:")[-1]
         else:
             author_id = None
 
